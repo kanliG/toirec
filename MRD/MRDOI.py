@@ -1,29 +1,19 @@
 # Import the required modules
-from scipy import complex_
 from MRD import PPR_keywords
-import mmap
-import numpy as np
-import array
-from struct import unpack
-from os import path
-import os
-import fnmatch
-import glob
+
 
 # Global
 # Windows directory
 # rootPathMRD = "N:\\MRI\\MRDData\\"
 # rootPathSUR = "N:\\MRI\\OriginalData\\"
 
-
 # Linux directory
 # rootPathMRD = '/home/ivip/MRI/MRDData/'
 # rootPathSUR = '/home/ivip/MRI/OriginalData/'
 
-
-# Your directory
-rootPathMRD = '/home/ivip/MRI/MRDData/'
-rootPathSUR = '/home/ivip/MRI/OriginalData/'
+# for Venkat
+# rootPathMRD = "O:\\Projects & users applications\\Denoise\\Dataset\\MRD\\"
+# rootPathSUR = "N:\\MRI\\OriginalData\\"
 
 
 def get_data_format(dt=None):
@@ -59,8 +49,8 @@ def get_mrd_3d(filename_=None):
     fid = mmap.mmap(fidf.fileno(), 0)
 
     # Read first 4 values from header
-    val = unpack('iiii', fid.read(16))  # Linux
-    # val = unpack('llll', fid.read(16)) # Windows
+    # val = unpack('iiii', fid.read(16))  # Linux
+    val = unpack('llll', fid.read(16)) # Windows
 
     # Get dimensions from this
     no_samples, no_views, no_views_2, no_slices = val[0], val[1], val[2], val[3]
@@ -200,15 +190,15 @@ def open_sur_file(mouse_id=None, scan_id=None):
 
 
 def create_mrd_path(mouse_id=None, scan_id=None):
-    full_file = str(rootPathMRD + str(int(mouse_id)) + '/' + str(int(scan_id)) + '/' + str(int(scan_id)))
+    full_file = str(rootPathMRD + str(int(mouse_id)) + '\\' + str(int(scan_id)) + '\\' + str(int(scan_id)))
     full_file_name = full_file + '_0.MRD'
     if not path.exists(full_file_name):
-        full_file_name = full_file + '_000_0.MRD'
+         full_file_name = full_file + '_000_0.MRD'
     return full_file_name
 
 
 def create_rtv_path(mouse_id=None, scan_id=None):
-    full_file = str(rootPathMRD + str(int(mouse_id)) + '/' + str(int(scan_id)) + '/' + 'rtable.rtv')
+    full_file = str(rootPathMRD + str(int(mouse_id)) + '\\' + str(int(scan_id)) + '\\' + 'rtable.rtv')
     return full_file
 
 
@@ -222,7 +212,7 @@ def find(pattern, path_input):
 
 
 def create_sur_path(mouse_id=None, scan_id=None):
-    full_folder = str(rootPathSUR + str(int(mouse_id)) + '/Image/' + str(int(scan_id)) + '/1/*.SUR')
+    full_folder = str(rootPathSUR + str(int(mouse_id)) + '\\Image\\' + str(int(scan_id)) + '\\1\\*.SUR')
     mylist = []
     for file in glob.glob(full_folder):
         mylist.append(file)
@@ -341,7 +331,7 @@ def recon_mrd_fse2d(mouse_id=None, scan_id=None):
                 data_1 = np.flip(data_1, 2)
                 # store k - space
                 corrected_kspace = np.fft.fftshift(np.fft.fft(data_1, axis=1), axes=1)
-                ks[:, :, current_slice] = corrected_kspace
+                ks[current_slice, :, :] = corrected_kspace
 
                 # reconstruction
                 fft_on = 1
