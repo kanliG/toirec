@@ -8,7 +8,7 @@ in a .mrd file
 @author: William Scott-Jackson
 """
 # We want to use regular expressions to parse the footer
-import re
+# import re
 
 # TODO: Find out if there are any keywords that need including from other types
 # of files, e.g. .SUR
