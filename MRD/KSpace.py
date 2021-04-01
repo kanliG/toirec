@@ -1,7 +1,4 @@
-import numpy as np
 from MRD import MRDOI
-import random
-from skimage.filters import window  # hanning filter
 
 
 def add_motion_artifacts(ks3d=None):
