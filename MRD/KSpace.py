@@ -1,4 +1,7 @@
+import numpy as np
 from MRD import MRDOI
+import random
+from skimage.filters import window  # hanning filter
 
 
 def add_motion_artifacts(ks3d=None):
@@ -22,17 +25,17 @@ def add_motion_artifacts(ks3d=None):
         motion_ks3d[i, :, :] = ks_new
 
     return motion_im3d, motion_ks3d
-
-
+ 
+   
 def add_noise_artifacts(ks3d=None):
     noisy_im3d = np.zeros(np.shape(ks3d))
     noisy_ks3d = np.zeros(np.shape(ks3d), dtype=complex)
 
     # per slice
     mean = 0  # keep it 0
-    min_rand = 1
-    max_rand = 1.5
-    var = 0.5
+    min_rand = np.abs(ks3d.max())/300
+    max_rand = np.abs(ks3d.max())/100
+    var = np.abs(ks3d.max())/1000
     sigma = random.uniform(min_rand, max_rand)  # random value for [1 1.5]
     for i in range(0, np.shape(ks3d)[0]):
         ks = ks3d[i, :, :]
@@ -84,3 +87,5 @@ def add_high_pass_filter_artifacts():
 
 def add_low_pass_filter_artifacts():
     return
+    
+  
