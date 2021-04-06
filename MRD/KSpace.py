@@ -5,15 +5,16 @@ from skimage.filters import window  # hanning filter
 
 
 def add_motion_artifacts(ks3d=None):
-    motion_im3d = np.zeros(np.shape(ks3d))
-    motion_ks3d = np.zeros(np.shape(ks3d), dtype=complex)
+    ks3d_copy = ks3d.copy()
+    motion_im3d = np.zeros(np.shape(ks3d_copy))
+    motion_ks3d = np.zeros(np.shape(ks3d_copy), dtype=complex)
 
     # per slice
-    for i in range(0, np.shape(ks3d)[0]):
-        ks = ks3d[i, :, :]
+    for i in range(0, np.shape(ks3d_copy)[0]):
+        ks = ks3d_copy[i, :, :]
         ks_new = ks
         min_rand = 2
-        max_rand = np.shape(ks3d)[1] / 50
+        max_rand = np.shape(ks3d_copy)[1]/50
         step = random.uniform(min_rand, max_rand)
         for ii in range(0, np.shape(ks)[1], int(step)):  # int(step)
             ks_new[:, ii] = ks[:, ii] * (0.2 + 0.2j)
@@ -24,7 +25,7 @@ def add_motion_artifacts(ks3d=None):
         motion_im3d[i, :, :] = noisy_im
         motion_ks3d[i, :, :] = ks_new
 
-    return motion_im3d, motion_ks3d
+    return motion_im3d, motion_ks3d, max_rand
  
    
 def add_noise_artifacts(ks3d=None):
@@ -33,9 +34,10 @@ def add_noise_artifacts(ks3d=None):
 
     # per slice
     mean = 0  # keep it 0
-    min_rand = np.abs(ks3d.max())/300
-    max_rand = np.abs(ks3d.max())/100
-    var = np.abs(ks3d.max())/1000
+    point = np.abs(ks3d.mean())*40
+    min_rand = point/5 # np.abs(ks3d.max())/400
+    max_rand = point
+    var = max_rand/10
     sigma = random.uniform(min_rand, max_rand)  # random value for [1 1.5]
     for i in range(0, np.shape(ks3d)[0]):
         ks = ks3d[i, :, :]
@@ -60,16 +62,10 @@ def hanning_filter(ks3d=None):
     hanning_im3d = np.zeros(np.shape(ks3d))
     hanning_ks3d = np.zeros(np.shape(ks3d), dtype=complex)
 
-    # per slice
-    mean = 0  # keep it 0
-    min_rand = 1
-    max_rand = 1.5
-    var = 0.5
-    sigma = random.uniform(min_rand, max_rand)  # random value for [1 1.5]
     for i in range(0, np.shape(ks3d)[0]):
         ks = ks3d[i, :, :]
         sz = np.shape(ks)
-        hanning = ks * window('hann', ks.shape)
+        hanning = ks + ks * window('hann', ks.shape)
         ks_new = hanning
 
         # Noisy reconstructed image
