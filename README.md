@@ -7,12 +7,12 @@ I suggest to start with loadMRD_GK.ipynb
 
 
 I run it with:
-    Python 3.8.5
+    - Python 3.8.5
 Required Packages for Python 3:
-    NumPy - handles FFT transforms and array operations
-    random - use random artifact and noise per call
-    scikit-image  - image process (hanning filter)
-    mmapi, array, struct, os, fnmatch, glob, re
+    - NumPy: handles FFT transforms and array operations
+    - random:use random artifact and noise per call
+    - scikit-image: image process (hanning filter)
+    - mmapi -array -struct -os -fnmatch -glob -re
         
 
 
