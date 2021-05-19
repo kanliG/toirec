@@ -11,14 +11,24 @@ import glob
 
 # Global
 # Windows directory
+# rootPathMRD = 'N:\\MRI\\MRDData\\'
+# rootPathSUR = 'N:\\MRI\\OriginalData\\'
+
 rootPathMRD = 'O:\\Projects & users applications\\Denoise\\Dataset\\MRDtest\\'
-rootPathSUR = 'O:\\Projects & users applications\\Denoise\\Dataset\\MRD\\'
+rootPathSUR = 'N:\\MRI\\OriginalData\\'
+
 
 # Linux directory
 # rootPathMRD = '/home/ivip/MRI/MRDData/'
 # rootPathSUR = '/home/ivip/MRI/OriginalData/'
 
-
+# Get the data format
+#
+# Output:
+# format: string
+#
+# Input:
+# dt - int
 def get_data_format(dt=None):
     if dt == 0:
         return 'B'
@@ -46,6 +56,15 @@ def get_data_format(dt=None):
         return 'i'
 
 
+# Get MRD file
+#
+# Output:
+# im - reconstructed image
+# dim - dimensions
+# par - acquisition parameters: struct
+#
+# Input:
+# filename: Path of the mrd file - string
 def get_mrd_3d(filename_=None):
     # Open file as read-binary only
     fidf = open(filename_, 'r+b')  # open(filename_,'rb')
@@ -159,27 +178,37 @@ def get_mrd_3d(filename_=None):
 
 
 # Open MRD files!
-# Select the MRD files
+#
 # Output:
-# DATA - kspace
-# folderName - The folder name where the data are be stored.
+# im - raw data
+# dim - dimensions
+# par - acquisition parameters: struct
 #
 # Input:
-# titleOFDialog - The title of the dialog box
 # mouseID - The mouse ID
 # scanID - The scan ID
-# Example #1:
-# OpenMRDfile(); % Select the MRD file
 #
-# Example #2:
-# OpenMRDfile(titleOFDialog, mouseID, scanID);
-# OpenMRDfile('titleOFDialog',1701,20626);
+# Example:
+# open_mrd_file(1701,20626)
 def open_mrd_file(mouse_id=None, scan_id=None):
     full_file_name = create_mrd_path(mouse_id, scan_id)
     [im, dim, par] = get_mrd_3d(full_file_name)
     return im, dim, par
 
 
+# Open SUR files!
+#
+# Output:
+# im - original image
+# dim - dimensions
+# par - acquisition parameters: struct
+#
+# Input:
+# mouseID - The mouse ID
+# scanID - The scan ID
+#
+# Example:
+# open_sur_file(1701,20626)
 def open_sur_file(mouse_id=None, scan_id=None):
     # im = []
     full_file_name = create_sur_path(mouse_id, scan_id)
@@ -192,6 +221,17 @@ def open_sur_file(mouse_id=None, scan_id=None):
     return im, dim, par
 
 
+# Create the MRD path
+#
+# Output:
+# full_file_name - The MRD path: string
+#
+# Input:
+# mouseID - The mouse ID
+# scanID - The scan ID
+#
+# Example:
+# create_mrd_path(1701,20626)
 def create_mrd_path(mouse_id=None, scan_id=None):
     full_file = str(rootPathMRD + str(int(mouse_id)) + '\\' + str(int(scan_id)) + '\\' + str(int(scan_id)))
     print(full_file)
@@ -201,11 +241,49 @@ def create_mrd_path(mouse_id=None, scan_id=None):
     return full_file_name
 
 
+# Create the RTV path
+#
+# Output:
+# full_file - The RTV path: string
+#
+# Input:
+# mouseID - The mouse ID
+# scanID - The scan ID
+#
+# Example:
+# create_rtv_path(1701,20626)
 def create_rtv_path(mouse_id=None, scan_id=None):
     full_file = str(rootPathMRD + str(int(mouse_id)) + '\\' + str(int(scan_id)) + '\\' + 'rtable.rtv')
     return full_file
 
 
+# Create the SUR path
+#
+# Output:
+# mylist - The SUR path: string
+#
+# Input:
+# mouseID - The mouse ID
+# scanID - The scan ID
+#
+# Example:
+# create_sur_path(1701,20626)
+def create_sur_path(mouse_id=None, scan_id=None):
+    full_folder = str(rootPathSUR + str(int(mouse_id)) + '\\Image\\' + str(int(scan_id)) + '\\1\\*.SUR')
+    mylist = []
+    for file in glob.glob(full_folder):
+        mylist.append(file)
+    return mylist
+
+
+# find a pattern in an input string
+#
+# Output:
+# result
+#
+# Input:
+# pattern
+# path_input
 def find(pattern, path_input):
     result = []
     for root, dirs, files in os.walk(path_input):
@@ -215,14 +293,18 @@ def find(pattern, path_input):
     return result
 
 
-def create_sur_path(mouse_id=None, scan_id=None):
-    full_folder = str(rootPathSUR + str(int(mouse_id)) + '\\Image\\' + str(int(scan_id)) + '\\1\\*.SUR')
-    mylist = []
-    for file in glob.glob(full_folder):
-        mylist.append(file)
-    return mylist
-
-
+# reconstruction of the MRD 2D FSE protocol
+#
+# Output:
+# ks - kspace
+# im - reconstructed image
+#
+# Input:
+# mouseID - The mouse ID
+# scanID - The scan ID
+#
+# Example:
+# recon_mrd_fse2d(1701,20626)
 def recon_mrd_fse2d(mouse_id=None, scan_id=None):
     im1 = []
     full_file_name_mrd = create_mrd_path(mouse_id, scan_id)
@@ -350,7 +432,13 @@ def recon_mrd_fse2d(mouse_id=None, scan_id=None):
 
     return ks, im
 
-
+# reconstruction of the kspace 2D
+#
+# Output:
+# im - reconstructed image
+#
+# Input:
+# ks - kspace
 def recon_corrected_kspace(corrected_kspace=None):
     im = np.fft.ifft(corrected_kspace, axis=1)
     im = np.fft.ifft(im, axis=0)
@@ -358,7 +446,13 @@ def recon_corrected_kspace(corrected_kspace=None):
     im = np.abs(im)
     return im
 
-
+# Create rtable - the line order of the kspace (# We don't need it now)
+#
+# Output:
+# rtable - the line order of the kspace
+#
+# Input:
+# par - acquisition parameters: struct
 def create_rtable(par=None):
     print('In progress...')
     rtable = par
